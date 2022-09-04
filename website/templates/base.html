@@ -23,20 +23,21 @@
                 {% if user.is_authenticated %}
                 <a class="nav-item nav-link" id="home" href="/">Home</a>
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">Devices</a>
+                    <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button"
+                        aria-expanded="false">Devices</a>
                     <ul class="dropdown-menu">
-                      <li><a class="dropdown-item" href="/create-device">Create device</a></li>
-                      <li><a class="dropdown-item" href="/list-devices">List device</a></li>
-                    </ul>
-                  </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">Devices</a>
-                    <ul class="dropdown-menu">
-                      <li><a class="dropdown-item" href="/create-device">Deploy contract</a></li>
-                      <li><a class="dropdown-item" href="/list-devices">List contracts</a></li>
+                        <li><a class="dropdown-item" href="/create-device">Create device</a></li>
+                        <li><a class="dropdown-item" href="/list-devices">List device</a></li>
                     </ul>
                 </li>
-                <a class="nav-item nav-link" id="contracts" href="/contracts">Contracts</a>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button"
+                        aria-expanded="false">Contracts</a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="/deploy-contract">Deploy contract</a></li>
+                        <li><a class="dropdown-item" href="/list-contracts">List contracts</a></li>
+                    </ul>
+                </li>
                 {% else %}
                 <a class="nav-item nav-link" id="login" href="/login">Login</a>
                 {% endif %}
@@ -81,7 +82,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.2.0/js/bootstrap.min.js"
         integrity="sha512-8Y8eGK92dzouwpROIppwr+0kPauu0qqtnzZZNEF8Pat5tuRNJxJXCkbQfJ0HlUG3y1HB3z18CSKmUo7i2zcPpg=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-        <script src="../static/main.js"></script>
+    <script src="../static/main.js"></script>
 </body>
 
 </html>

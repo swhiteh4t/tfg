@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{%block title %}Home{% endblock %}
+{%block title %}Create device{% endblock %}
 {% block content %}
 <h1 align="center">Create a new device</h1>
 <form method="POST">
@@ -8,13 +8,27 @@
         <input type="hostname" class="form-control" id="hostname" name="hostname" placeholder="Enter hostname">
     </div>
     <br />
-    <select class="form-select" aria-label="Select Contract" name="contract-selection" required>
-        <option selected>Select a contract address</option>
-        {% for contract.address in user.contracts %}
-        <option value="{{contract.address}}">{{contract.address}}</option>
-        {% endfor %}
-      </select>
+    <div class="form-group">
+        <label for="owner-address">Device's owner address</label>
+        <input type="owner-address" class="form-control" id="owner-address" name="owner-address"
+            placeholder="Owner blockchain address">
+    </div>
     <br />
-    <button type="submit" class="btn btn-primary">Log in</button>
+</form>
+<div class="form-group">
+    <label for="password">Password of the private key of manufacturer</label>
+    <input type="password" class="form-control" id="password" name="password"
+        placeholder="Enter password of the private key">
+</div>
+<br />
+<label for="contractname">Select contract name</label>
+<select class="form-select" aria-label="Select Contract" name="contract-selection" required>
+    <option selected>Select a contract address</option>
+    {% for contract in user.contracts %}
+    <option value="{{contract.address}}">{{contract.address}}</option>
+    {% endfor %}
+</select>
+<br />
+<button type="submit" class="btn btn-primary">Log in</button>
 </form>
 {% endblock %}
