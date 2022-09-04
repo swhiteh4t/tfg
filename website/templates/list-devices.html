@@ -1,15 +1,15 @@
 {% extends "base.html" %}
 {%block title %}List devices{% endblock %}
 {% block content %}
-<h1 align="center">devices</h1>
+<h1 align="center">Devices</h1>
 {% for device in user.devices %}
 <div id="accordion">
     <div class="card">
-        <div class="card-header" id="{{user.hostname}}-heading">
+        <div class="card-header" id="{{device.hostname}}-heading">
             <h5 class="mb-0">
                 <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true"
                     aria-controls="collapseOne">
-                    Hostname: {{user.hostname}}
+                    Hostname: {{device.hostname}}
                 </button>
             </h5>
         </div>

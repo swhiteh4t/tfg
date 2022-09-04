@@ -21,26 +21,49 @@ def home():
 def createDevices():
     if request.method == "POST":
         hostname = request.form.get("hostname")
-        owner = request.form.get("owner")
+        owner = request.form.get("owner-address")
         contract = request.form.get("contract-selection")
+        filename = request.form.get("filename")
+        password = request.form.get("password")
         device = Device.query.filter_by(hostname=hostname).first()
-        print(contract)
+        print(owner)
         if not (device) and contract is not None:
             # Get address
-            tokenID, address, publicKey = createDeviceToken(owner, contract)
+            tokenID, address, publicKey = createDeviceToken(
+                owner, contract, filename, password
+            )
             flash(
                 "Device registered with address "
                 + address
-                + " waiting for owner state",
+                + " waiting for owner engagement"
+                + " Public key -> "
+                + publicKey,
                 category="sucess",
             )
-            new_device = Device(address=address, public=publicKey, hostname=hostname)
+            new_device = Device(
+                address=address,
+                public=publicKey,
+                hostname=hostname,
+                owner=current_user.username,
+                user_id=current_user.id,
+            )
             db.session.add(new_device)
             db.session.commit()
-            render_template("create-devices.html", user=current_user, address=address)
+            render_template(
+                "create-devices.html",
+                user=current_user,
+                address=address,
+                publicKey=publicKey,
+            )
         else:
             flash("Hostname already exists", category="error")
     return render_template("create-devices.html", user=current_user)
+
+
+@views.route("/list-devices")
+@login_required
+def listDevices():
+    return render_template("list-devices.html", user=current_user)
 
 
 @views.route("/deploy-contract", methods=["GET", "POST"])

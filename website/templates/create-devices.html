@@ -14,21 +14,26 @@
             placeholder="Owner blockchain address">
     </div>
     <br />
-</form>
-<div class="form-group">
-    <label for="password">Password of the private key of manufacturer</label>
-    <input type="password" class="form-control" id="password" name="password"
-        placeholder="Enter password of the private key">
-</div>
-<br />
-<label for="contractname">Select contract name</label>
-<select class="form-select" aria-label="Select Contract" name="contract-selection" required>
-    <option selected>Select a contract address</option>
-    {% for contract in user.contracts %}
-    <option value="{{contract.address}}">{{contract.address}}</option>
-    {% endfor %}
-</select>
-<br />
-<button type="submit" class="btn btn-primary">Log in</button>
+    <div class="form-group">
+        <label for="filename">Filename of the private key of manufacturer</label>
+        <input type="filename" class="form-control" id="filename" name="filename"
+            placeholder="Enter filename of the private key">
+    </div>
+    <br />
+    <div class="form-group">
+        <label for="password">Password of the private key of manufacturer</label>
+        <input type="password" class="form-control" id="password" name="password"
+            placeholder="Enter password of the private key">
+    </div>
+    <br />
+    <label for="contractname">Select contract name</label>
+    <select class="form-select" aria-label="Select Contract" name="contract-selection" required>
+        <option selected>Select a contract address</option>
+        {% for contract in user.contracts %}
+        <option value="{{contract.address}}">{{contract.address}}</option>
+        {% endfor %}
+    </select>
+    <br />
+    <button type="submit" class="btn btn-primary">Deploy</button>
 </form>
 {% endblock %}

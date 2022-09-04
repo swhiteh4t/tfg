@@ -26,10 +26,9 @@ def converToHex(a):
 SEED = 25
 
 # Get the account from the challenge-response PUF
-def getPUFResponse():    
+def getPUFResponse():
+    k, n = 8, 64
     weights = default_rng(1).normal(size=(k, n + 1))
     puf = XORBistableRingPUF(n=64, k=8, weights=weights)
     response = puf.eval(random_inputs(n=64, N=128, seed=SEED))
-    return response
-
-
+    return "REDACTED_PRIVATE_KEY"
