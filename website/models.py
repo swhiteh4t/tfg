@@ -5,11 +5,11 @@ from sqlalchemy.sql import func
 
 class Device(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    address = db.Column(db.String(64))
+    address = db.Column(db.String(64), unique=True)
     date = db.Column(db.DateTime(timezone=True), default=func.now())
     hostname = db.Column(db.String(64), unique=True)
     owner = db.Column(db.String(64))
-    public = db.Column(db.String(128))
+    public = db.Column(db.String(128), unique=True)
     # Relations
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
 

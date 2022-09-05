@@ -21,9 +21,12 @@
                 Owner: {{device.owner}}
                 <br />
                 Public key: {{device.public}}
+                <br />
+                State: {{ getState(device.address,contract) }}
             </div>
         </div>
     </div>
 </div>
+<br />
 {% endfor %}
 {% endblock %}
