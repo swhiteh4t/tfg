@@ -50,7 +50,8 @@ def sing_up():
             if user:
                 flash("User alredy exists!", category="error")
             elif (
-                re.match(r"^(?![-._])(?!.*[_.-]{2})[\w.-]{6,30}(?<![-._])$", username)
+                re.match(
+                    r"^(?![-._])(?!.*[_.-]{2})[\w.-]{6,30}(?<![-._])$", username)
                 is None
             ):
                 flash(
@@ -63,11 +64,12 @@ def sing_up():
                     category="error",
                 )
             elif password1 != password2:
-                flash("Passwords should match!")
+                flash("Passwords should match!", category="error")
             else:
                 new_user = User(
                     username=username,
-                    password=bcrypt.hashpw(password1.encode(), bcrypt.gensalt()),
+                    password=bcrypt.hashpw(
+                        password1.encode(), bcrypt.gensalt()),
                 )
                 db.session.add(new_user)
                 db.session.commit()

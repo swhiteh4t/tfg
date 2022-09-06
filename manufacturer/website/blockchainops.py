@@ -3,6 +3,7 @@ from eth_account import Account
 import os
 from solcx import compile_standard, install_solc
 from web3 import Web3
+from website.cipherops import generateHashOfSharedSecret
 from website.puf import getPUFResponse
 from ecdsa import SECP256k1, SigningKey, VerifyingKey
 import json
@@ -76,8 +77,29 @@ class CipherOps:
 
     @staticmethod
     def getDeviceState(addressDev, address):
-        smart_nft = CipherOps.__w3.eth.contract(address=address, abi=CipherOps.__abi)
+        smart_nft = CipherOps.__w3.eth.contract(
+            address=address, abi=CipherOps.__abi)
         tokenInfo = smart_nft.functions.getInfoTokenFromBCA(addressDev).call()
+        dataEng = smart_nft.functions.getDataEngagement(addressDev).call()
+        print(dataEng)
+        if len(dataEng) != 0:
+            hash = generateHashOfSharedSecret(dataEng)
+            print(hash)
+            print(dataEng)
+            transaction = smart_nft.functions.ownerEngagement(hash).buildTransaction(
+                {
+                    "gasPrice": CipherOps.__w3.eth.gas_price,
+                    "chainId": 1337,
+                    "from": addressDev,
+                    "nonce": CipherOps.__w3.eth.get_transaction_count(addressDev),
+                }
+            )
+            signed_txn = CipherOps.__w3.eth.account.sign_transaction(
+                transaction, private_key="0x" + getPUFResponse()
+            )
+            send_store_tx = CipherOps.__w3.eth.send_raw_transaction(
+                signed_txn.rawTransaction)
+
         return "Engaged with owner" if tokenInfo[2] else "Waiting for owner"
 
     @staticmethod
@@ -86,51 +108,54 @@ class CipherOps:
         # bytecode, abi = CipherOps.returnABIByte()
         # For connecting to Ganache
 
-        w3 = Web3(Web3.HTTPProvider("HTTP://127.0.0.1:7545"))
         chain_id = 1337
         with open(
-            os.path.join(os.getcwd(), "website", "keys", fileName + ".json"), "r"
+            os.path.join(os.getcwd(), "website", "keys",
+                         fileName + ".json"), "r"
         ) as file:
             ciphertext = file.read()
 
         acc = Account.from_key(Account.decrypt(ciphertext, password).hex())
 
-        smartNFT = w3.eth.contract(abi=CipherOps.__abi, bytecode=CipherOps.__bytecode)
+        smartNFT = CipherOps.__w3.eth.contract(
+            abi=CipherOps.__abi, bytecode=CipherOps.__bytecode)
         # Get lastest transaction count
         # print("Is connected-> " + str(w3.isConnected()))
-        nonce = w3.eth.get_transaction_count(acc.address)
+        nonce = CipherOps.__w3.eth.get_transaction_count(acc.address)
         # 1 - Build a transaction
         # 2 - Sign the transaction
         # 3 - Send the transaction
 
         transaction = smartNFT.constructor().buildTransaction(
             {
-                "gasPrice": w3.eth.gas_price,
+                "gasPrice": CipherOps.__w3.eth.gas_price,
                 "chainId": chain_id,
                 "from": acc.address,
                 "nonce": nonce,
             }
         )
-        signed_transaction = w3.eth.account.sign_transaction(
+        signed_transaction = CipherOps.__w3.eth.account.sign_transaction(
             transaction, private_key=acc.key
         )
-        tx_hash = w3.eth.send_raw_transaction(signed_transaction.rawTransaction)
-        tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
+        tx_hash = CipherOps.__w3.eth.send_raw_transaction(
+            signed_transaction.rawTransaction)
+        tx_receipt = CipherOps.__w3.eth.wait_for_transaction_receipt(tx_hash)
 
         return tx_receipt.contractAddress
 
     @staticmethod
     def createDeviceToken(ownerAddress, contractAddress, fileName, password):
         deviceAddress = CipherOps.getBCA()
-        w3 = Web3(Web3.HTTPProvider("HTTP://127.0.0.1:7545"))
+
         chain_id = 1337
         with open(
-            os.path.join(os.getcwd(), "website", "keys", fileName + ".json"), "r"
+            os.path.join(os.getcwd(), "website", "keys",
+                         fileName + ".json"), "r"
         ) as file:
             ciphertext = file.read()
 
         manufacturer = Account.from_key(Account.decrypt(ciphertext, password))
-        print(manufacturer.address)
+        # print(manufacturer.address)
 
         smart_nft = CipherOps.__w3.eth.contract(
             address=contractAddress, abi=CipherOps.__abi
@@ -144,10 +169,10 @@ class CipherOps:
                 deviceAddress, ownerAddress
             ).build_transaction(
                 {
-                    "gasPrice": w3.eth.gas_price,
+                    "gasPrice": CipherOps.__w3.eth.gas_price,
                     "chainId": chain_id,
                     "from": manufacturer.address,
-                    "nonce": w3.eth.get_transaction_count(manufacturer.address),
+                    "nonce": CipherOps.__w3.eth.get_transaction_count(manufacturer.address),
                 }
             )
 
@@ -156,10 +181,11 @@ class CipherOps:
             )
             publicKey = sk_dev.verifying_key
 
-            signed_txn = w3.eth.account.sign_transaction(
+            signed_txn = CipherOps.__w3.eth.account.sign_transaction(
                 store_transaction, private_key=manufacturer.key
             )
-            send_store_tx = w3.eth.send_raw_transaction(signed_txn.rawTransaction)
+            send_store_tx = CipherOps.__w3.eth.send_raw_transaction(
+                signed_txn.rawTransaction)
 
             # print(send_store_tx)
         else:

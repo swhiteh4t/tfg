@@ -145,6 +145,7 @@ contract smartNFT_SC is ERC721, smartNFT {
         address _addressSD,
         string memory _certSignature
     ) external override {
+        require(msg.sender == ownerOfSD[tokenIDOfBCA[_addressSD]]);
         Secure_Token[tokenIDOfBCA[_addressSD]].signature = _certSignature;
     }
 

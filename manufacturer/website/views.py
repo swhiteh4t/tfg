@@ -1,10 +1,7 @@
-from urllib import response
 from flask import Blueprint, render_template, request, flash
 from flask_login import login_required, current_user
 from . import db
 from .models import Device, Contract
-import pypuf
-import os, json
 from website.blockchainops import CipherOps
 
 views = Blueprint("views", __name__)
@@ -16,7 +13,7 @@ def home():
     return render_template("home.html", user=current_user)
 
 
-@views.route("/create-device", methods=["GET", "POST"])
+@views.route("/register-device", methods=["GET", "POST"])
 @login_required
 def createDevices():
     if request.method == "POST":
@@ -51,17 +48,11 @@ def createDevices():
                 )
                 db.session.add(new_device)
                 db.session.commit()
-                render_template(
-                    "create-devices.html",
-                    user=current_user,
-                    address=address,
-                    publicKey=publicKey,
-                )
             else:
                 flash("Device already registered", category="error")
         else:
             flash("Hostname already exists", category="error")
-    return render_template("create-devices.html", user=current_user)
+    return render_template("register-devices.html", user=current_user)
 
 
 @views.route("/list-devices")
@@ -86,10 +77,12 @@ def deployContract():
             new_contract = Contract(address=address, user_id=current_user.id)
             db.session.add(new_contract)
             db.session.commit()
-            flash("New contract created with address " + address, category="success")
+            flash("New contract created with address " +
+                  address, category="success")
             return render_template("deploy-contract.html", user=current_user)
         else:
-            flash("Contract already deployed " + contract.address, category="error")
+            flash("Contract already deployed " +
+                  contract.address, category="error")
             return render_template("deploy-contract.html", user=current_user)
     else:
         return render_template("deploy-contract.html", user=current_user)
