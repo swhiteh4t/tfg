@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{%block title %}List devices{% endblock %}
+{% block content %}
+<h1 align="center">Devices</h1>
+{% for device in user.devices %}
+<div id="accordion">
+    <div class="card">
+        <div class="card-header" id="{{device.hostname}}-heading">
+            <h5 class="mb-0">
+                <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true"
+                    aria-controls="collapseOne">
+                    Hostname: {{device.hostname}}
+                </button>
+            </h5>
+        </div>
+
+        <div id="{{user.hostname}}" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
+            <div class="card-body">
+                Address: {{ device.address}}
+                <br />
+                Owner: {{device.owner}}
+                <br />
+                Public key: {{device.public}}
+                <br />
+                State: {{ getState(device.address,contract) }}
+            </div>
+        </div>
+    </div>
+</div>
+<br />
+{% endfor %}
+{% endblock %}

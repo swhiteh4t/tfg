@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{%block title %}Deploy new contract{% endblock %}
+{% block content %}
+<h1 align="center">Deploy a new contract</h1>
+<form method="POST">
+    <div class="form-group">
+        <label for="filename">Name of the file of the manufacturer filename</label>
+        <input type="filename" class="form-control" id="filename" name="filename" placeholder="Enter filename">
+    </div>
+    <br />
+    <div class="form-group">
+        <label for="password">Private key password</label>
+        <input type="password" class="form-control" id="password" name="password"
+            placeholder="Enter password of the private key">
+    </div>
+    <br />
+    <button type="submit" class="btn btn-primary">Deploy</button>
+</form>
+{% endblock %}

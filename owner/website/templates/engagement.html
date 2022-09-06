@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{%block title %}Engagement with new device{% endblock %}
+{% block content %}
+<h1 align="center">Engage with a device</h1>
+<form method="POST">
+    <div class="form-group">
+        <label for="filename">Filename of the private key of owner</label>
+        <input type="filename" class="form-control" id="filename" name="filename"
+            placeholder="Enter filename of the private key">
+    </div>
+    <br />
+    <div class="form-group">
+        <label for="password">Password of the private key of owner </label>
+        <input type="password" class="form-control" id="password" name="password"
+            placeholder="Enter password of the private key">
+    </div>
+    <br />
+    <label for="devicename">Select the device name</label>
+    <select class="form-select" aria-label="Select device" name="device-selection" required>
+        <option selected>Select a device to engage</option>
+        {% for device in devices %}
+        <option value="{{device.address}}">{{device.address}} - {{device.hostname}}</option>
+        {% endfor %}
+    </select>
+    <br />
+    <button type="submit" class="btn btn-primary">Deploy</button>
+</form>
+{% endblock %}

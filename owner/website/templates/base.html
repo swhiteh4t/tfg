@@ -21,10 +21,30 @@
         <div class="collapse navbar-collapse" id="navbar">
             <div class="navbar-nav">
                 {% if user.is_authenticated %}
-                <a class="nav-item nav-link" id="home" href="/home">Home</a>
+                <a class="nav-item nav-link" id="home" href="/">Home</a>
+                <a class="nav-item nav-link" id="engagement" href="/engagement">Engagement</a>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button"
+                        aria-expanded="false">Devices</a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="/register-device">Register device</a></li>
+                        <li><a class="dropdown-item" href="/list-devices">List device</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button"
+                        aria-expanded="false">Certificates</a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="/create-certificate">Create certificate</a></li>
+                        <li><a class="dropdown-item" href="/list-certificates">List certificates</a></li>
+                    </ul>
+                </li>
                 {% else %}
                 <a class="nav-item nav-link" id="login" href="/login">Login</a>
-                <a class="nav-item nav-link" id="signup" href="/signup">Sign Up</a>
+                {% endif %}
+                {% if created %}
+                {% else %}
+                <a class="nav-item nav-link" id="signup" href="/signup">Register user</a>
                 {% endif %}
                 {% if user.is_authenticated %}
                 <a class="nav-item nav-link" id="logout" href="/logout">Log out</a>
@@ -63,7 +83,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.2.0/js/bootstrap.min.js"
         integrity="sha512-8Y8eGK92dzouwpROIppwr+0kPauu0qqtnzZZNEF8Pat5tuRNJxJXCkbQfJ0HlUG3y1HB3z18CSKmUo7i2zcPpg=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-        <script src="../static/main.js"></script>
+    <script src="../static/main.js"></script>
 </body>
 
 </html>
