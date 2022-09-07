@@ -4,29 +4,29 @@ from solcx import compile_standard, install_solc
 from web3 import Web3
 from ecdsa import SECP256k1, SigningKey, VerifyingKey
 import os
-from abc import ABCMeta, abstractclassmethod, abstractstaticmethod
-from website.cipherops import generateHashOfSharedSecret, generatePublicKeyandDataEng
+import website.cipherops
 
 from website.io import readContract, readContractAddress, readKey
 
 
-class CipherOps:
+class BlockChainOps:
 
     __instance = None
     __w3 = None
     __abi = None
     __bytecode = None
     __version = "0.8.15"
+    __chainID = 1337
 
     @staticmethod
     def getInstance():
-        if CipherOps.__instance == None:
-            CipherOps()
-        return CipherOps.__instance
+        if BlockChainOps.__instance == None:
+            BlockChainOps()
+        return BlockChainOps.__instance
 
     @staticmethod
     def returnABIByte():
-        install_solc(CipherOps.__version)
+        install_solc(BlockChainOps.__version)
 
         contract = readContract()
 
@@ -34,7 +34,7 @@ class CipherOps:
             {
                 "language": "Solidity",
                 "sources": {
-                    "PoC_smartNFT.sol": {"content": contract},
+                    "ownable-iot.sol": {"content": contract},
                 },
                 "settings": {
                     "outputSelection": {
@@ -42,14 +42,14 @@ class CipherOps:
                     }
                 },
             },
-            solc_version=CipherOps.__version,
+            solc_version=BlockChainOps.__version,
         )
-        bytecode = compiled_sol["contracts"]["PoC_smartNFT.sol"]["smartNFT_SC"]["evm"][
+        bytecode = compiled_sol["contracts"]["ownable-iot.sol"]["OwnableIoT"]["evm"][
             "bytecode"
         ]["object"]
 
         # ABI
-        abi = compiled_sol["contracts"]["PoC_smartNFT.sol"]["smartNFT_SC"]["abi"]
+        abi = compiled_sol["contracts"]["ownable-iot.sol"]["OwnableIoT"]["abi"]
         return abi, bytecode
 
     @staticmethod
@@ -62,53 +62,118 @@ class CipherOps:
 
     # Constructor function
     def __init__(self):
-        if CipherOps.__instance != None:
+        if BlockChainOps.__instance != None:
             pass
         else:
-            CipherOps.__w3 = Web3(Web3.HTTPProvider("HTTP://127.0.0.1:7545"))
-            CipherOps.__abi, CipherOps.__bytecode = CipherOps.returnABIByte()
-            CipherOps.__instance = self
+            BlockChainOps.__w3 = Web3(
+                Web3.HTTPProvider("HTTP://127.0.0.1:7545"))
+            BlockChainOps.__abi, BlockChainOps.__bytecode = BlockChainOps.returnABIByte()
+            BlockChainOps.__instance = self
 
     @staticmethod
     def getDeviceState(addressDev, address):
-        smart_nft = CipherOps.__w3.eth.contract(
-            address=address, abi=CipherOps.__abi)
+        smart_nft = BlockChainOps.__w3.eth.contract(
+            address=address, abi=BlockChainOps.__abi)
         tokenInfo = smart_nft.functions.getInfoTokenFromBCA(addressDev).call()
         return "Engaged with owner" if tokenInfo[2] else "Waiting for owner"
 
     @staticmethod
     def engageDevice(fileName, password, public, devAddress):
-        chain_id = 1337
-
         ciphertext = readKey(fileName)
 
         contractAddress = readContractAddress()
 
         owner = Account.from_key(Account.decrypt(ciphertext, password).hex())
 
-        smart_nft = CipherOps.__w3.eth.contract(
-            address=contractAddress, abi=CipherOps.__abi
+        smart_nft = BlockChainOps.__w3.eth.contract(
+            address=contractAddress, abi=BlockChainOps.__abi
         )
 
         tokenId = smart_nft.functions.tokenFromBCA(devAddress).call()
 
-        dataEngagement, secret = generatePublicKeyandDataEng(owner.key, public)
+        dataEngagement, secret = website.cipherops.generatePublicKeyandDataEng(
+            owner.key, public)
 
-        hash = generateHashOfSharedSecret(secret)
+        hash = website.cipherops.generateHashOfSharedSecret(secret)
         print(hash)
         transaction = smart_nft.functions.startOwnerEngagement(tokenId, dataEngagement, hash).build_transaction(
             {
-                "gasPrice": CipherOps.__w3.eth.gas_price,
-                "chainId": chain_id,
+                "gasPrice": BlockChainOps.__w3.eth.gas_price,
+                "chainId": BlockChainOps.__chainID,
                 "from": owner.address,
-                "nonce": CipherOps.__w3.eth.get_transaction_count(owner.address),
+                "nonce": BlockChainOps.__w3.eth.get_transaction_count(owner.address),
             }
         )
 
-        signed_txn = CipherOps.__w3.eth.account.sign_transaction(
+        signed_txn = BlockChainOps.__w3.eth.account.sign_transaction(
             transaction, private_key=owner.key
         )
-        send_store_tx = CipherOps.__w3.eth.send_raw_transaction(
+        send_store_tx = BlockChainOps.__w3.eth.send_raw_transaction(
             signed_txn.rawTransaction)
         print(smart_nft.functions.getInfoTokenFromBCA(devAddress).call())
         return smart_nft.functions.getInfoTokenFromBCA(devAddress).call()
+
+    @staticmethod
+    def getSecret(fileName, password, public):
+        ciphertext = readKey(fileName)
+
+        contractAddress = readContractAddress()
+
+        owner = Account.from_key(Account.decrypt(ciphertext, password).hex())
+        dataEngagement, secret = website.cipherops.generatePublicKeyandDataEng(
+            owner.key, public)
+        return secret
+
+    @staticmethod
+    def setCertificateToken(fileName, password, token, addressSD):
+        ciphertext = readKey(fileName)
+
+        contractAddress = readContractAddress()
+
+        owner = Account.from_key(Account.decrypt(ciphertext, password).hex())
+
+        smart_nft = BlockChainOps.__w3.eth.contract(
+            address=contractAddress, abi=BlockChainOps.__abi
+        )
+
+        transaction = smart_nft.functions.setTokenStorage(addressSD, token).build_transaction(
+            {
+                "gasPrice": BlockChainOps.__w3.eth.gas_price,
+                "chainId": BlockChainOps.__chainID,
+                "from": owner.address,
+                "nonce": BlockChainOps.__w3.eth.get_transaction_count(owner.address),
+            }
+        )
+
+        signed_txn = BlockChainOps.__w3.eth.account.sign_transaction(
+            transaction, private_key=owner.key
+        )
+        send_store_tx = BlockChainOps.__w3.eth.send_raw_transaction(
+            signed_txn.rawTransaction)
+
+    @staticmethod
+    def setCertificateHash(fileName, password, token, addressSD):
+        ciphertext = readKey(fileName)
+
+        contractAddress = readContractAddress()
+
+        owner = Account.from_key(Account.decrypt(ciphertext, password).hex())
+
+        smart_nft = BlockChainOps.__w3.eth.contract(
+            address=contractAddress, abi=BlockChainOps.__abi
+        )
+
+        transaction = smart_nft.functions.setCertificateDigest(addressSD, token).build_transaction(
+            {
+                "gasPrice": BlockChainOps.__w3.eth.gas_price,
+                "chainId": BlockChainOps.__chainID,
+                "from": owner.address,
+                "nonce": BlockChainOps.__w3.eth.get_transaction_count(owner.address),
+            }
+        )
+
+        signed_txn = BlockChainOps.__w3.eth.account.sign_transaction(
+            transaction, private_key=owner.key
+        )
+        send_store_tx = BlockChainOps.__w3.eth.send_raw_transaction(
+            signed_txn.rawTransaction)

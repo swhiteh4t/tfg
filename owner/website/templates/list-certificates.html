@@ -1,10 +1,10 @@
 {% extends "base.html" %}
-{%block title %}List contracts{% endblock %}
+{%block title %}List certificates{% endblock %}
 {% block content %}
-<h1 align="center">Contracts</h1>
+<h1 align="center">Certificates</h1>
 <ul class="list-group list-group-flush" id="notes">
-    {% for contract in user.contracts %}
-    <li class="list-group-item">Address: {{ contract.address}} Deployer: {{user.username}} Date: {{contract.time}}</li>
+    {% for certificate in certificates %}
+    <li class="list-group-item">Hash: {{ certificate.hash}}</li>
     {% endfor %}
 </ul>
 {% endblock %}

@@ -1,19 +1,59 @@
 {% extends "base.html" %}
 {%block title %}Deploy new contract{% endblock %}
 {% block content %}
-<h1 align="center">Deploy a new contract</h1>
+<h1 align="center">Create a new certificate</h1>
 <form method="POST">
     <div class="form-group">
-        <label for="filename">Name of the file of the manufacturer filename</label>
-        <input type="filename" class="form-control" id="filename" name="filename" placeholder="Enter filename">
+        <label for="country-name">Country name</label>
+        <input type="country-name" class="form-control" id="country-name" name="country-name"
+            placeholder="Enter country name">
+    </div>
+    <div class="form-group">
+        <label for="state-province">State or province</label>
+        <input type="state-province" class="form-control" id="state-province" name="state-province"
+            placeholder="Enter state-province">
     </div>
     <br />
     <div class="form-group">
-        <label for="password">Private key password</label>
-        <input type="password" class="form-control" id="password" name="password"
-            placeholder="Enter password of the private key">
+        <label for="locality">Locality Name</label>
+        <input type="locality" class="form-control" id="locality" name="locality" placeholder="Enter locaity">
     </div>
     <br />
-    <button type="submit" class="btn btn-primary">Deploy</button>
+    <div class="form-group">
+        <label for="organization">Organization name</label>
+        <input type="organization" class="form-control" id="organization" name="organization"
+            placeholder="Enter organization">
+    </div>
+    <br />
+    <div class="form-group">
+        <label for="common-name">Common name</label>
+        <input type="common-name" class="form-control" id="common-name" name="common-name"
+            placeholder="Enter common name, we can use the hostname of the device">
+    </div>
+    <br />
+    <div class="form-group">
+        <label for="email">Email address</label>
+        <input type="email" class="form-control" id="email" name="email" placeholder="Enter email">
+    </div>
+    <br />
+    <div class="form-group">
+        <label for="validity">Validity in seconds</label>
+        <input type="validity" class="form-control" id="validity" name="validity" placeholder="Enter validity">
+    </div>
+    <br />
+    <div class="form-group">
+        <label for="password">Password of the private key</label>
+        <input type="password" class="form-control" id="password" name="password" placeholder="Enter password">
+    </div>
+    <br />
+    <label for="devicename">Select the device name</label>
+    <select class="form-select" aria-label="Select device" name="device-selection" required>
+        <option selected>Select a device to engage</option>
+        {% for device in devices %}
+        <option value="{{device.address}}">{{device.address}} - {{device.hostname}}</option>
+        {% endfor %}
+    </select>
+    <br />
+    <button type="submit" class="btn btn-primary">Create certificate</button>
 </form>
 {% endblock %}

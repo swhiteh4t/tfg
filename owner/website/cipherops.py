@@ -1,5 +1,6 @@
 from ecdsa import ECDH, SECP256k1, SigningKey, VerifyingKey
 from hashlib import sha256
+from Crypto.Cipher import AES
 
 
 def generatePublicKeyandDataEng(priv, remote_public_key):
@@ -13,3 +14,19 @@ def generatePublicKeyandDataEng(priv, remote_public_key):
 
 def generateHashOfSharedSecret(secret):
     return int(sha256(secret).hexdigest(), 16)
+
+
+def encrypt(key, plaintext):
+    nonce = sha256(key).digest()[0:15]
+    cipher = AES.new(key, AES.MODE_CTR, nonce=nonce)
+    ct_bytes = cipher.encrypt(plaintext.encode())
+    return ct_bytes.hex()
+
+
+def decrypt(key, ciphertext):
+    nonce = sha256(key.encode()).digest()[0:15]
+    try:
+        cipher = AES.new(key, AES.MODE_CTR, nonce=nonce)
+        return cipher.decrypt(ciphertext)
+    except (ValueError, KeyError):
+        return None

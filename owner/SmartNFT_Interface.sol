@@ -48,23 +48,33 @@ interface smartNFT {
     /// @return The owner of the token bound to _addressSD
     function ownerOfFromBCA(address _addressSD) external view returns (address);
 
+    /// @notice This function let us reset the shared secret between device and owner
+    /// @dev The invocation of this function is limited to the owner
+    function resetKeyExchange(address _addressSD) external;
+
     function getDataEngagement(address _addressSD)
         external
         view
         returns (string memory);
 
-    /// @notice This function sets the certificate signature of the device
-    /// @dev Only the owner of the device can change the device's signature
-    /// @param _certSignature The secp256k1 signature of the device's certificate
-    function setCertificateSignature(
-        address _addressSD,
-        string memory _certSignature
-    ) external;
+    /// @notice This function sets the certificate digest of the device
+    /// @dev Only the owner of the device can change the device's digest
+    /// @param _certDigest The secp256k1 digest of the device's certificate
+    function setCertificateDigest(address _addressSD, uint256 _certDigest)
+        external;
 
-    /// @notice This funciton retrieves the device's certificate signature
+    /// @notice This funciton retrieves the device's certificate digest
     /// @dev Everyone that knows the address to who is communicating to can call the function
-    /// @param _addressSD The BCA of the device's certificate signature
-    function getCertificateSignature(address _addressSD)
+    /// @param _addressSD The BCA of the device's certificate digest
+    function getCertificateDigest(address _addressSD)
+        external
+        view
+        returns (uint256);
+
+    function setTokenStorage(address _addressSD, string memory _tokenStorage)
+        external;
+
+    function getTokenStorage(address _addressSD)
         external
         view
         returns (string memory);

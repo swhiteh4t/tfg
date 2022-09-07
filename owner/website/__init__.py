@@ -4,7 +4,7 @@ from os import path
 from flask_login import LoginManager
 from flask import Flask, render_template
 
-from website.blockchainops import CipherOps
+from website.blockchainops import BlockChainOps
 
 db = SQLAlchemy()
 DB_NAME = "database.db"
@@ -15,11 +15,12 @@ def page_not_found(e):
 
 
 def getState(addressDev, address):
-    cipherops = CipherOps.getInstance()
+    cipherops = BlockChainOps.getInstance()
     return cipherops.getDeviceState(addressDev, address)
 
-
 # init our application
+
+
 def create_app():
     app = Flask(__name__)
     # This key is used to cipher cookies and sensitive data do not hardcode

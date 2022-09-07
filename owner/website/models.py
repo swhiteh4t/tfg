@@ -24,7 +24,8 @@ class Device(db.Model):
 class Certificate(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     cid = db.Column(db.String(256), unique=True)
-    signature = db.Column(db.String(64), unique=True)
+    hash = db.Column(db.String(64), unique=True)
+    token = db.Column(db.String(128))
     device_id = db.Column(db.Integer, db.ForeignKey("device.id"))
 
 
