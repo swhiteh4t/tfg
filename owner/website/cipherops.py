@@ -19,6 +19,7 @@ def generateHashOfSharedSecret(secret):
 def encrypt(key, plaintext):
     nonce = sha256(key).digest()[0:15]
     cipher = AES.new(key, AES.MODE_CTR, nonce=nonce)
+    print(plaintext.encode())
     ct_bytes = cipher.encrypt(plaintext.encode())
     return ct_bytes.hex()
 

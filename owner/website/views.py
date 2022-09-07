@@ -21,7 +21,7 @@ def home():
         writeContractAddress(request.form.get("contract"))
         return render_template("home.html", user=current_user, contract=request.form.get("contract"))
 
-    return render_template("home.html", user=current_user, contract=contractAddress)
+    return render_template("home.html", user=current_user, contract=contractAddress, public=public)
 
 
 @views.route("/engagement", methods=["GET", "POST"])
@@ -109,7 +109,9 @@ def createCertificate():
         bk.setCertificateHash("owner", password, hash, device)
         device = Device.query.filter_by(address=device).first()
         secret = bk.getSecret("owner", password, device.public)
+        print("Secret " + secret.hex())
         ct = encrypt(secret, cid + ","+user.token)
+        print(ct)
         bk.setCertificateToken("owner", password, ct, device.address)
         #os.getcwd(), "website", "certificates", CERT_FILE
         new_device = Certificate(
