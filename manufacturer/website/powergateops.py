@@ -1,7 +1,6 @@
 import os
 from pathlib import Path
 from pygate_grpc.client import PowerGateClient
-from website.blockchainops import CipherOps
 
 from website.io import readPowerGateConfig
 

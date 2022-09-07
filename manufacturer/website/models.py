@@ -12,6 +12,7 @@ class Device(db.Model):
     public = db.Column(db.String(128), unique=True)
     # Relations
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    contract_id = db.Column(db.Integer, db.ForeignKey("contract.id"))
 
 
 class User(db.Model, UserMixin):
@@ -28,3 +29,4 @@ class Contract(db.Model):
     time = db.Column(db.DateTime(timezone=True), default=func.now())
     # Relations
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    device = db.relationship("Device")

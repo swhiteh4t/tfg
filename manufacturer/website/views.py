@@ -2,9 +2,11 @@ from flask import Blueprint, render_template, request, flash
 from flask_login import login_required, current_user
 
 from website import blockchainops
+from website.cipherops import decrypt
+from website.powergateops import PowerGateOps
 from . import db
 from .models import Device, Contract
-from website.blockchainops import BlockChainOps, CipherOps
+from website.blockchainops import BlockChainOps
 
 views = Blueprint("views", __name__)
 
@@ -28,8 +30,8 @@ def createDevices():
         print(owner)
         if not (device) and contract is not None:
             # Get address
-            cipherops = CipherOps.getInstance()
-            address, publicKey = cipherops.createDeviceToken(
+            bk = BlockChainOps.getInstance()
+            address, publicKey = bk.createDeviceToken(
                 owner, contract, filename, password
             )
             if publicKey is not None:
@@ -47,6 +49,7 @@ def createDevices():
                     hostname=hostname,
                     owner=current_user.username,
                     user_id=current_user.id,
+                    contract_id=contract
                 )
                 db.session.add(new_device)
                 db.session.commit()
@@ -74,8 +77,8 @@ def deployContract():
         if contract is None:
             fileName = request.form.get("filename")
             password = request.form.get("password")
-            cipherops = CipherOps.getInstance()
-            address = cipherops.deployBlockchain(fileName, password)
+            bk = BlockChainOps.getInstance()
+            address = bk.deployBlockchain(fileName, password)
             new_contract = Contract(address=address, user_id=current_user.id)
             db.session.add(new_contract)
             db.session.commit()
@@ -96,10 +99,23 @@ def listContract():
     return render_template("list-contract.html", user=current_user)
 
 
-@views.route("/get-certificates", methods=["GET", "POST"])
+@views.route("/get-certificate", methods=["GET", "POST"])
 @login_required
 def getCertificates():
     if request.method == 'POST':
+        device = request.form.get("device-selection")
+        public = request.form.get("public")
+        print(device)
+        contract = Contract.query.get(1).address
         bk = BlockChainOps.getInstance()
-        bk.getCertificateSignature()
+        digest = bk.getCertificateDigest(
+            contract, device)
+        secret = bk.getSecret(device, contract, public)
+        # print(secret.hex())
+        powerGateInfo = bk.getPowerGateInfo(contract, device)
+        # print(powerGateInfo)
+        cred = decrypt(secret, powerGateInfo).decode("utf-8").split(",")
+        pg = PowerGateOps.getInstance()
+        certificate = pg.retrieveFile(cred[0], cred[1])
+        print(certificate)
     return render_template("get-certificate.html", user=current_user)

@@ -1,14 +1,20 @@
 {% extends "base.html" %}
-{%block title %}Get certificate of device{% endblock %}
+{%block title %}Register device{% endblock %}
 {% block content %}
-<label for="devicename">Select device name</label>
-<select class="form-select" aria-label="Select device" name="device-selection" required>
-    <option selected>Select a device address</option>
-    {% for device in user.devices %}
-    <option value="{{device.address}}">{{device.address}}</option>
-    {% endfor %}
-</select>
-<br />
-<button type="submit" class="btn btn-primary">Get Certificate</button>
+<h1 align="center">Register a new device</h1>
+<form method="POST">
+    <div class="form-group">
+        <label for="public">Device name</label>
+        <input type="public" class="form-control" id="public" name="public" placeholder="Enter public">
+    </div>
+    <br />
+    <select class="form-select" aria-label="Select device" name="device-selection" required>
+        <option selected>Select a device address</option>
+        {% for device in user.devices %}
+        <option value="{{device.address}}">{{device.address}}</option>
+        {% endfor %}
+    </select>
+    <br />
+    <button type="submit" class="btn btn-primary">Deploy</button>
 </form>
 {% endblock %}

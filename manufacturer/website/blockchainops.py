@@ -3,7 +3,8 @@ from eth_account import Account
 import os
 from solcx import compile_standard, install_solc
 from web3 import Web3
-from website.cipherops import generateHashOfSharedSecret
+from website.cipherops import generateHashOfSharedSecret, generatePublicKeyandDataEng
+from website.io import readKey
 from website.puf import getPUFResponse
 from ecdsa import SECP256k1, SigningKey, VerifyingKey
 import json
@@ -71,10 +72,31 @@ class BlockChainOps:
             BlockChainOps.__instance = self
 
     @staticmethod
+    def getPowerGateInfo(contract, address):
+        smart_nft = BlockChainOps.__w3.eth.contract(
+            address=contract, abi=BlockChainOps.__abi)
+        return smart_nft.functions.getTokenStorage(address).call()
+
+    @staticmethod
     def getBCA():
         response = getPUFResponse()
         account = Account.from_key(response)
         return account.address
+
+    @staticmethod
+    def getCertificateDigest(contract, addressDev):
+        smart_nft = BlockChainOps.__w3.eth.contract(
+            address=contract, abi=BlockChainOps.__abi)
+        digest = smart_nft.functions.getCertificateDigest(addressDev).call()
+        print(digest)
+        return digest
+
+    @staticmethod
+    def getSecret(addressDev, contract, owner_public):
+        smart_nft = BlockChainOps.__w3.eth.contract(
+            address=contract, abi=BlockChainOps.__abi)
+        _, secret = generatePublicKeyandDataEng(owner_public)
+        return secret
 
     @staticmethod
     def getDeviceState(addressDev, address):
@@ -85,8 +107,6 @@ class BlockChainOps:
         print(dataEng)
         if len(dataEng) != 0:
             hash = generateHashOfSharedSecret(dataEng)
-            print(hash)
-            print(dataEng)
             transaction = smart_nft.functions.ownerEngagement(hash).buildTransaction(
                 {
                     "gasPrice": BlockChainOps.__w3.eth.gas_price,
