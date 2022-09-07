@@ -1,8 +1,10 @@
 from flask import Blueprint, render_template, request, flash
 from flask_login import login_required, current_user
+
+from website import blockchainops
 from . import db
 from .models import Device, Contract
-from website.blockchainops import CipherOps
+from website.blockchainops import BlockChainOps, CipherOps
 
 views = Blueprint("views", __name__)
 
@@ -97,4 +99,7 @@ def listContract():
 @views.route("/get-certificates", methods=["GET", "POST"])
 @login_required
 def getCertificates():
+    if request.method == 'POST':
+        bk = BlockChainOps.getInstance()
+        bk.getCertificateSignature()
     return render_template("get-certificate.html", user=current_user)
