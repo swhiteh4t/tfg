@@ -14,33 +14,19 @@ from ecdsa import ECDH, SECP256k1
 from website.puf import getPUFResponse
 
 
-def encrypt(sk, password, username):
-    salt = get_random_bytes(16)
-    key = scrypt(password, salt, 16, N=2**20, r=8, p=1)
-    cipher = AES.new(key, AES.MODE_CTR)
-    ct_bytes = cipher.encrypt(sk.encode())
-    nonce = cipher.nonce.hex()
-    ct = ct_bytes.hex()
-    result = json.dumps({"nonce": nonce, "sk": ct, "salt": salt.hex()})
-    with open(
-        os.path.join(os.getcwd(), "website", "userdata",
-                     username + ".json"), "w"
-    ) as outfile:
-        outfile.write(result)
+def encrypt(key, plaintext):
+    nonce = sha256(key.encode()).digest()[0:15]
+    cipher = AES.new(key, AES.MODE_CTR, nonce=nonce)
+    ct_bytes = cipher.encrypt(plaintext.encode())
+    return ct_bytes.hex()
 
 
-def decrypt(password, username):
-    f = open(os.path.join(os.getcwd(), "website",
-             "userdata", username + ".json"), "r")
-    jsonString = json.loads(f.read())
+def decrypt(key, ciphertext):
+    nonce = sha256(key.encode()).digest()[0:15]
     try:
-        nonce = bytes.fromhex(jsonString["nonce"])
-        ct = bytes.fromhex(jsonString["sk"])
-        salt = bytes.fromhex(jsonString["salt"])
-        key = scrypt(password, salt, 16, N=2**20, r=8, p=1)
         cipher = AES.new(key, AES.MODE_CTR, nonce=nonce)
-        pt = cipher.decrypt(ct)
-        return pt.decode()
+        pt = cipher.decrypt(ciphertext)
+        return pt
     except (ValueError, KeyError):
         return None
 

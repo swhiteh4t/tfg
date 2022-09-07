@@ -92,3 +92,9 @@ def deployContract():
 @login_required
 def listContract():
     return render_template("list-contract.html", user=current_user)
+
+
+@views.route("/get-certificates", methods=["GET", "POST"])
+@login_required
+def getCertificates():
+    return render_template("get-certificate.html", user=current_user)

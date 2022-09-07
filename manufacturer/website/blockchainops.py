@@ -28,14 +28,14 @@ class CipherOps:
     def returnABIByte():
         install_solc(CipherOps.__version)
 
-        with open(os.path.join(os.getcwd(), "PoC_smartNFT.sol"), "r") as file:
+        with open(os.path.join(os.getcwd(), "ownable-iot.sol"), "r") as file:
             contract = file.read()
 
         compiled_sol = compile_standard(
             {
                 "language": "Solidity",
                 "sources": {
-                    "PoC_smartNFT.sol": {"content": contract},
+                    "ownable-iot.sol": {"content": contract},
                 },
                 "settings": {
                     "outputSelection": {
@@ -45,12 +45,12 @@ class CipherOps:
             },
             solc_version=CipherOps.__version,
         )
-        bytecode = compiled_sol["contracts"]["PoC_smartNFT.sol"]["smartNFT_SC"]["evm"][
+        bytecode = compiled_sol["contracts"]["ownable-iot.sol"]["OwnableIoT"]["evm"][
             "bytecode"
         ]["object"]
 
         # ABI
-        abi = compiled_sol["contracts"]["PoC_smartNFT.sol"]["smartNFT_SC"]["abi"]
+        abi = compiled_sol["contracts"]["ownable-iot.sol"]["OwnableIoT"]["abi"]
         return abi, bytecode
 
     @staticmethod

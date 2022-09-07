@@ -5,7 +5,7 @@ pragma solidity ^0.8.15;
 import "./SmartNFT_Interface.sol";
 import "./ERC721_Interface.sol";
 
-contract smartNFT_SC is ERC721, smartNFT {
+contract OwnableIoT is ERC721, smartNFT {
     enum States {
         waitingForOwner,
         engagedWithOwner
@@ -24,9 +24,10 @@ contract smartNFT_SC is ERC721, smartNFT {
         uint256 hashK_OD; //Hash of the Key shared between owner and device
         uint256 hashK_UD; //Hash of the Key shared between user and device
         string dataEngagement; //Public Key to create K_OD or K_UD depending on token state
-        string signature; //Signature of the certificate
+        string tokenAddress;
+        uint256 digest; //Signature of the certificate
         uint256 timestamp; //Last time that device updated its proof of live
-        uint256 timeout; //timeout to verify a device error
+        uint256 timeout; //Maximun key age
     }
 
     Token_Struct[] Secure_Token;
@@ -43,6 +44,7 @@ contract smartNFT_SC is ERC721, smartNFT {
                 0,
                 "",
                 "",
+                0,
                 0,
                 0
             )
@@ -69,6 +71,7 @@ contract smartNFT_SC is ERC721, smartNFT {
                     0,
                     "",
                     "",
+                    0,
                     block.timestamp,
                     86400
                 )
@@ -141,20 +144,43 @@ contract smartNFT_SC is ERC721, smartNFT {
         return (ownerOfSD[tokenIDOfBCA[_addressSD]]);
     }
 
-    function setCertificateSignature(
-        address _addressSD,
-        string memory _certSignature
-    ) external override {
+    function setTokenStorage(address _addressSD, string memory _tokenStorage)
+        external
+        override
+    {
         require(msg.sender == ownerOfSD[tokenIDOfBCA[_addressSD]]);
-        Secure_Token[tokenIDOfBCA[_addressSD]].signature = _certSignature;
+        Secure_Token[tokenIDOfBCA[_addressSD]].tokenAddress = _tokenStorage;
     }
 
-    function getCertificateSignature(address _addressSD)
+    function getTokenStorage(address _addressSD)
         external
         view
         returns (string memory)
     {
-        return Secure_Token[tokenIDOfBCA[_addressSD]].signature;
+        return Secure_Token[tokenIDOfBCA[_addressSD]].tokenAddress;
+    }
+
+    function setCertificateDigest(address _addressSD, uint256 _certDigest)
+        external
+        override
+    {
+        require(msg.sender == ownerOfSD[tokenIDOfBCA[_addressSD]]);
+        Secure_Token[tokenIDOfBCA[_addressSD]].digest = _certDigest;
+    }
+
+    function getCertificateDigest(address _addressSD)
+        external
+        view
+        returns (uint256)
+    {
+        return Secure_Token[tokenIDOfBCA[_addressSD]].digest;
+    }
+
+    function resetKeyExchange(address _addressSD) external {
+        require(msg.sender == ownerOfSD[tokenIDOfBCA[_addressSD]]);
+        Secure_Token[tokenIDOfBCA[_addressSD]].digest = 0;
+        Secure_Token[tokenIDOfBCA[_addressSD]].dataEngagement = "";
+        Secure_Token[tokenIDOfBCA[_addressSD]].state = States.waitingForOwner;
     }
 
     function getDataEngagement(address _addressSD)

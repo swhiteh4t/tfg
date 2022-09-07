@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{%block title %}Get certificate of device{% endblock %}
+{% block content %}
+<label for="devicename">Select device name</label>
+<select class="form-select" aria-label="Select device" name="device-selection" required>
+    <option selected>Select a device address</option>
+    {% for device in user.devices %}
+    <option value="{{device.address}}">{{device.address}}</option>
+    {% endfor %}
+</select>
+<br />
+<button type="submit" class="btn btn-primary">Get Certificate</button>
+</form>
+{% endblock %}
