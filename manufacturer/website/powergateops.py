@@ -22,11 +22,13 @@ class PowerGateOps:
         if PowerGateOps.__instance != None:
             pass
         else:
-
-            PowerGateOps.__config = readPowerGateConfig()
-            PowerGateOps.__instance = self
-            PowerGateOps.__client = PowerGateClient(
-                PowerGateOps.__hostName, False)
+            try:
+                PowerGateOps.__config = readPowerGateConfig()
+                PowerGateOps.__instance = self
+                PowerGateOps.__client = PowerGateClient(
+                    PowerGateOps.__hostName, False)
+            except:
+                print("Cannot establish connection with the machine!!")
 
     @staticmethod
     def retrieveFile(cid, token):
