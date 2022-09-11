@@ -21,7 +21,7 @@ def home():
         writeContractAddress(request.form.get("contract"))
         return render_template("home.html", user=current_user, contract=request.form.get("contract"))
 
-    return render_template("home.html", user=current_user, contract=contractAddress, public=public)
+    return render_template("home.html", user=current_user, contract=contractAddress)
 
 
 @views.route("/engagement", methods=["GET", "POST"])

@@ -25,8 +25,11 @@ class PowerGateOps:
 
             PowerGateOps.__config = readPowerGateConfig()
             PowerGateOps.__instance = self
-            PowerGateOps.__client = PowerGateClient(
-                PowerGateOps.__hostName, False)
+            try:
+                PowerGateOps.__client = PowerGateClient(
+                    PowerGateOps.__hostName, False)
+            except:
+                print("Machine not reacheable!!!!")
 
     @staticmethod
     def getUser():
