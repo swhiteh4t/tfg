@@ -1,20 +1,22 @@
 from OpenSSL import crypto, SSL
 import os
 
+from website.cipherops import encrypt
 
-def cert_gen(
-        emailAddress="emailAddress",
-        commonName="commonName",
-        countryName="NT",
-        localityName="localityName",
-        stateOrProvinceName="stateOrProvinceName",
-        organizationName="organizationName",
-        organizationUnitName="organizationUnitName",
-        serialNumber=0,
-        validityStartInSeconds=0,
-        validityEndInSeconds=10*365*24*60*60,
-        KEY_FILE="private.key",
-        CERT_FILE="selfsigned.crt"):
+
+def cert_gen(secret,
+             emailAddress="emailAddress",
+             commonName="commonName",
+             countryName="NT",
+             localityName="localityName",
+             stateOrProvinceName="stateOrProvinceName",
+             organizationName="organizationName",
+             organizationUnitName="organizationUnitName",
+             serialNumber=0,
+             validityStartInSeconds=0,
+             validityEndInSeconds=10*365*24*60*60,
+             KEY_FILE="private.key",
+             CERT_FILE="selfsigned.crt"):
     k = crypto.PKey()
     k.generate_key(crypto.TYPE_RSA, 4096)
     # create a self-signed cert
@@ -32,10 +34,11 @@ def cert_gen(
     cert.set_issuer(cert.get_subject())
     cert.set_pubkey(k)
     cert.sign(k, 'sha256')
+    out = crypto.dump_certificate(crypto.FILETYPE_PEM, cert).decode(
+        "utf-8") + crypto.dump_privatekey(crypto.FILETYPE_PEM, k).decode("utf-8")
+    print(out)
     with open(os.path.join(os.getcwd(), "website", "certificates", CERT_FILE), "wt") as f:
-        f.write(crypto.dump_certificate(
-            crypto.FILETYPE_PEM, cert).decode("utf-8"))
-    with open(os.path.join(os.getcwd(), "website", "certificates", CERT_FILE), "a") as f:
-        f.write(crypto.dump_privatekey(crypto.FILETYPE_PEM, k).decode("utf-8"))
+        f.write(encrypt(secret, out))
     print(cert.get_signature_algorithm())
+    print(int(cert.digest("sha256").decode().replace(":", "").lower(), 16))
     return int(cert.digest("sha256").decode().replace(":", "").lower(), 16), cert.digest("sha256").decode().replace(":", "").lower()

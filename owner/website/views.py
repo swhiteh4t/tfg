@@ -2,7 +2,7 @@ import re
 from flask import Blueprint, render_template, request, flash
 from flask_login import login_required, current_user
 from website.blockchainops import BlockChainOps
-from website.cipherops import encrypt
+from website.cipherops import encrypt, getPublic
 from website.io import readContractAddress, writeContractAddress
 from website.powergateops import PowerGateOps
 from .models import Certificate, Device
@@ -18,10 +18,21 @@ views = Blueprint("views", __name__)
 def home():
     contractAddress = readContractAddress()
     if request.method == "POST":
-        writeContractAddress(request.form.get("contract"))
-        return render_template("home.html", user=current_user, contract=request.form.get("contract"))
+        writeContractAddress(request.form.get("contract-address"))
+        return render_template("home.html", user=current_user, contract=request.form.get("contract-address"))
 
     return render_template("home.html", user=current_user, contract=contractAddress)
+
+
+@views.route("/get-public", methods=['GET', 'POST'])
+@login_required
+def getpublic():
+    contractAddress = readContractAddress()
+    if request.method == "POST":
+        public = getPublic(request.form.get("password"))
+        return render_template("get-public.html", user=current_user, public=public)
+
+    return render_template("get-public.html", user=current_user, public="")
 
 
 @views.route("/engagement", methods=["GET", "POST"])
@@ -97,33 +108,36 @@ def createCertificate():
         pk = device + ".key"
         cert = device + ".crt"
         password = request.form.get("password")
-        hash, hashH = cert_gen(commonName=common_name, countryName=countryname,
-                               localityName=locality, stateOrProvinceName=state_province, organizationName=organization,
-                               emailAddress=email, validityEndInSeconds=int(validity), KEY_FILE=pk, CERT_FILE=cert)
-        queriedDevice = Device.query.filter_by(address=device)
+
         powergate = PowerGateOps.getInstance()
         user = powergate.getUser()
+        bk = BlockChainOps.getInstance()
+        deviceObj = Device.query.filter_by(address=device).first()
+        secret = bk.getSecret("owner", password, deviceObj.public)
+
+        hash, hashH = cert_gen(secret, commonName=common_name, countryName=countryname,
+                               localityName=locality, stateOrProvinceName=state_province, organizationName=organization,
+                               emailAddress=email, validityEndInSeconds=int(validity), KEY_FILE=pk, CERT_FILE=cert)
+        bk.setCertificateHash("owner", password, hash, device)
+        queriedDevice = Device.query.filter_by(address=device)
+
         cid = powergate.storeFile(os.path.join(
             os.getcwd(), "website", "certificates", cert), user.token)
-        bk = BlockChainOps.getInstance()
-        bk.setCertificateHash("owner", password, hash, device)
-        device = Device.query.filter_by(address=device).first()
-        secret = bk.getSecret("owner", password, device.public)
         print("Secret " + secret.hex())
         ct = encrypt(secret, cid + ","+user.token)
         print(ct)
-        bk.setCertificateToken("owner", password, ct, device.address)
+        bk.setCertificateToken("owner", password, ct, deviceObj.address)
         #os.getcwd(), "website", "certificates", CERT_FILE
         new_device = Certificate(
             cid=cid,
             hash=hashH,
             token=ct,
-            device_id=device.id,
+            device_id=deviceObj.id,
         )
         db.session.add(new_device)
         db.session.commit()
         flash("New certificate for device " +
-              device.address + " created " + user.token + " CID " + cid, category="sucess")
+              deviceObj.address + " created " + user.token + " CID " + cid, category="sucess")
     return render_template("create-certificate.html", user=current_user, devices=devices)
 
 

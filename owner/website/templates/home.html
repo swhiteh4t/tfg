@@ -5,4 +5,14 @@
 <h2 align="center">Hello {{ current_user.username }} !!!</h2>
 <h3 align="center"> Current contract address {{ contract }}</h3>
 <h4 align="center">Public key {{public}}</h4>
+</br>
+<form method="POST">
+    <div class="form-group">
+        <label for="contract-address">Contract address</label>
+        <input type="contract-address" class="form-control" id="contract-address" name="contract-address"
+            placeholder="Enter Contract address">
+    </div>
+    <br />
+    <button type="submit" class="btn btn-primary">Set</button>
+</form>
 {% endblock %}

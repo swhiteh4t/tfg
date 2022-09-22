@@ -5,6 +5,7 @@ from flask_login import LoginManager
 from flask import Flask, render_template
 
 from website.blockchainops import BlockChainOps
+from website.powergateops import PowerGateOps
 
 db = SQLAlchemy()
 DB_NAME = "database.db"
@@ -39,7 +40,7 @@ def create_app():
     from .models import Device, User, Certificate
 
     create_database(app)
-
+    PowerGateOps.getInstance()
     login_manager = LoginManager()
     login_manager.login_view = "auth.login"
     login_manager.init_app(app)
