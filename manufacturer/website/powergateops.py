@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from time import sleep
 from pygate_grpc.client import PowerGateClient
 
 from website.io import readPowerGateConfig
@@ -22,13 +23,17 @@ class PowerGateOps:
         if PowerGateOps.__instance != None:
             pass
         else:
-            try:
-                PowerGateOps.__config = readPowerGateConfig()
-                PowerGateOps.__instance = self
-                PowerGateOps.__client = PowerGateClient(
-                    PowerGateOps.__hostName, False)
-            except:
-                print("Cannot establish connection with the machine!!")
+
+            PowerGateOps.__config = readPowerGateConfig()
+            PowerGateOps.__instance = self
+            PowerGateOps.__client = None
+            while PowerGateOps.__client is None:
+                try:
+                    PowerGateOps.__client = PowerGateClient(
+                        PowerGateOps.__hostName, False)
+                    sleep(1)
+                except:
+                    print("Trying to connect.....")
 
     @staticmethod
     def retrieveFile(cid, token):

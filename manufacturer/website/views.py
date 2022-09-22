@@ -1,6 +1,7 @@
+import os
 from flask import Blueprint, render_template, request, flash
 from flask_login import login_required, current_user
-
+from OpenSSL import crypto
 from website import blockchainops
 from website.cipherops import decrypt
 from website.powergateops import PowerGateOps
@@ -118,5 +119,21 @@ def getCertificates():
         cred = decrypt(secret, powerGateInfo).decode().split(",")
         pg = PowerGateOps.getInstance()
         certificate = pg.retrieveFile(cred[0], cred[1])
-        print(certificate)
+        # print(certificate)
+        certKey = decrypt(secret, certificate).decode().split("-\n-")
+        cert, key = certKey[0] + "-", certKey[1]
+        CERT_FILE = device
+        with open(os.path.join(os.getcwd(), "website", "certificates", CERT_FILE + ".crt"), "wt") as f:
+            f.write(cert)
+        with open(os.path.join(os.getcwd(), "website", "certificates", CERT_FILE + ".key"), "wt") as f:
+            f.write(key)
+        bkDigest = bk.getCertificateDigest(contract, device)
+        print(cert)
+        print(key)
+        cert = crypto.load_certificate(crypto.FILETYPE_PEM, cert)
+        digest = int(cert.digest(
+            "sha256").decode().replace(":", "").lower(), 16)
+        print(digest)
+        flash("Sucessfuly got certificate!! Blockchain digest == Digest" +
+              str(digest)+"="+str(bkDigest), category="success")
     return render_template("get-certificate.html", user=current_user)

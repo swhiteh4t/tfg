@@ -1,12 +1,12 @@
 import json
-from base64 import b64encode
+from base64 import b64encode, b64decode
 from Crypto.Cipher import AES
 from Crypto.Random import get_random_bytes
 from Crypto.Protocol.KDF import scrypt
 import os
 from ecdsa import ECDH, SECP256k1, SigningKey, VerifyingKey
 from hashlib import sha256
-
+from Crypto.Util.Padding import unpad, pad
 
 # Generate the shared secret
 from ecdsa import ECDH, SECP256k1
@@ -29,20 +29,25 @@ def generatePublicKeyandDataEng(remote_public_key):
     return private.get_verifying_key().to_string("compressed").hex(), ecdh.generate_sharedsecret_bytes()
 
 
-def encrypt(key, plaintext):
-    nonce = sha256(key).digest()[0:15]
-    cipher = AES.new(key, AES.MODE_CTR, nonce=nonce)
-    ct_bytes = cipher.encrypt(plaintext.encode())
-    return ct_bytes.hex()
+def encrypt(key, plaintext, token=True):
+    cipher = AES.new(key, AES.MODE_CBC)
+    ct_bytes = cipher.encrypt(pad(plaintext.encode(), AES.block_size))
+    iv = b64encode(cipher.iv).decode('utf-8')
+    ct = b64encode(ct_bytes).decode('utf-8')
+    result = json.dumps({'iv': iv, 'ciphertext': ct})
+    return result
 
 
-def decrypt(key, ciphertext):
-    nonce = sha256(key).digest()[0:15]
+def decrypt(key, ciphertext, token=True):
     try:
-        cipher = AES.new(key, AES.MODE_CTR, nonce=nonce)
-        return cipher.decrypt(bytes.fromhex(ciphertext))
+        b64 = json.loads(ciphertext)
+        iv = b64decode(b64['iv'])
+        ct = b64decode(b64['ciphertext'])
+        cipher = AES.new(key, AES.MODE_CBC, iv)
+        pt = unpad(cipher.decrypt(ct), AES.block_size)
+        return pt
     except (ValueError, KeyError):
-        return None
+        print("Incorrect decryption")
 
 
 def generateHashOfSharedSecret(remote_public_key):

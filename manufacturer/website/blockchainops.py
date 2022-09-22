@@ -17,6 +17,7 @@ class BlockChainOps:
     __w3 = None
     __abi = None
     __bytecode = None
+    __chainId = 1337
     __version = "0.8.15"
 
     @staticmethod
@@ -129,7 +130,6 @@ class BlockChainOps:
         # bytecode, abi = BlockChainOps.returnABIByte()
         # For connecting to Ganache
 
-        chain_id = 1337
         with open(
             os.path.join(os.getcwd(), "website", "keys",
                          fileName + ".json"), "r"
@@ -150,7 +150,7 @@ class BlockChainOps:
         transaction = smartNFT.constructor().buildTransaction(
             {
                 "gasPrice": BlockChainOps.__w3.eth.gas_price,
-                "chainId": chain_id,
+                "chainId": BlockChainOps.__chainId,
                 "from": acc.address,
                 "nonce": nonce,
             }
@@ -169,7 +169,6 @@ class BlockChainOps:
     def createDeviceToken(ownerAddress, contractAddress, fileName, password):
         deviceAddress = BlockChainOps.getBCA()
 
-        chain_id = 1337
         with open(
             os.path.join(os.getcwd(), "website", "keys",
                          fileName + ".json"), "r"
@@ -192,7 +191,7 @@ class BlockChainOps:
             ).build_transaction(
                 {
                     "gasPrice": BlockChainOps.__w3.eth.gas_price,
-                    "chainId": chain_id,
+                    "chainId": BlockChainOps.__chainId,
                     "from": manufacturer.address,
                     "nonce": BlockChainOps.__w3.eth.get_transaction_count(manufacturer.address),
                 }
