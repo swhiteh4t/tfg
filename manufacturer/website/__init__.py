@@ -1,3 +1,4 @@
+import os
 from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
 from os import path
@@ -22,7 +23,7 @@ def page_not_found(e):
 def create_app():
     app = Flask(__name__)
     # This key is used to cipher cookies and sensitive data do not hardcode
-    app.config["SECRET_KEY"] = "REDACTED"
+    app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY") or os.urandom(32).hex()
     app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{DB_NAME}"
     app.register_error_handler(404, page_not_found)
     db.init_app(app)

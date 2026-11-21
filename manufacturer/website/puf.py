@@ -1,3 +1,4 @@
+import os
 from pypuf.simulation import XORBistableRingPUF
 from numpy.random import default_rng
 from pypuf.io import random_inputs
@@ -33,4 +34,9 @@ def getPUFResponse():
     weights = default_rng(1).normal(size=(k, n + 1))
     puf = XORBistableRingPUF(n=64, k=8, weights=weights)
     response = puf.eval(random_inputs(n=64, N=256, seed=SEED))
-    return "REDACTED_PRIVATE_KEY"
+    # The PUF is simulated: the device key is read from the environment instead
+    # of being derived from `response`. Use a local Ganache account key.
+    key = os.environ.get("DEVICE_PRIVATE_KEY")
+    if not key:
+        raise RuntimeError("Set DEVICE_PRIVATE_KEY (hex, without 0x) to the device's Ganache private key")
+    return key.removeprefix("0x")

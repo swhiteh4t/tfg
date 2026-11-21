@@ -7,7 +7,7 @@ from website.blockchainops import CipherOps
 class PowerGateOps:
 
     __instance = None
-    __hostName = "127.0.0.1:5002"
+    __hostName = os.environ.get("POWERGATE_HOST", "127.0.0.1:5002")
     __client = None
 
     @staticmethod

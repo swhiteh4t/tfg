@@ -1,0 +1,37 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+.env
+.env.*
+
+# --- Runtime data (never commit) ---
+# SQLite databases (contain user accounts / bcrypt hashes)
+*.db
+*.sqlite
+*.sqlite3
+
+# Encrypted Ethereum keystores
+**/website/keys/*
+!**/website/keys/.gitkeep
+
+# TLS certificates and private keys generated at runtime
+*.key
+*.pem
+*.crt
+*.crt.bak
+*.bak
+**/website/certificates/*
+!**/website/certificates/.gitkeep
+
+# Per-user data
+**/website/userdata/*
+!**/website/userdata/.gitkeep
+
+# --- Editors / OS ---
+.vscode/
+.idea/
+.DS_Store
